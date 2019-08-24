@@ -1,0 +1,6 @@
+tesseract num.baidu.exp0.tif num.baidu.exp0 -l eng -psm 7 nobatch box.train
+unicharset_extractor num.baidu.exp0.box
+shapeclustering -F font_properties -U unicharset -O num.unicharset num.baidu.exp0.tr
+mftraining -F font_properties -U unicharset -O num.unicharset num.baidu.exp0.tr
+cntraining num.baidu.exp0.tr
+combine_tessdata baidu.

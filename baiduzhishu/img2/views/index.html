@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>cookies录入</title>
+</head>
+<script src="https://cdn.bootcss.com/vue/2.5.16/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/axios/0.18.0/axios.min.js"></script>
+<body style="background: rgb(178, 200, 187)">
+  <div id="app">
+    <h3>录入cookies</h3>
+    <div v-for="(i, index) in cookies">
+        <span>用户名{{index+1}}:</span><input type="text" v-model="i.user">
+      <span>cookies:</span>
+      <textarea name="" id="" cols="30" rows="5" v-model="i.cookies"></textarea>
+      <button v-if="cookies.length > 1" @click="cookies.splice(index, 1)">删除</button>
+    </div>
+    <button @click="post" :disabled="disabled">批量上传</button>
+    <button @click="addCookies">新增一个</button>
+    <button @click="check">查询当前可用cookies</button>
+    <h3>批量修改邮箱</h3>
+    <div v-for="(i, index) in emails">
+      <span>邮箱{{index+1}}:</span><input type="text" v-model="i.email">
+      <button v-if="emails.length > 1" @click="emails.splice(index, 1)">删除(点击批量上传后更新)</button>
+    </div>
+    <button @click="postEmails" :disabled="disabled">批量上传</button>
+    <button @click="emails.push({email: ''})">新增一个</button>
+  </div>
+</body>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      cookies: [{
+        user: '',
+        cookies: ''
+      }],
+      emails: [{
+        email: ''
+      }],
+      disabled: false
+    },
+    created() {
+      this.getEmails()
+    },
+    methods: {
+      check() {
+        window.axios.get('checkCookies').then((res) => {
+          window.alert(res.data.msg)
+        })
+      },
+      addCookies() {
+        this.cookies.push({
+          user: '',
+          cookies: ''
+        })
+      },
+      post() {
+        this.disabled = true
+        for (let i = 0; i < this.cookies.length; i ++) {
+          if (!this.cookies[i].user || !this.cookies[i].cookies) {
+            window.alert('不允许留空')
+            this.disabled = false
+            return
+          }
+        }
+        window.axios.post('/updateCookies', {
+          cookies: this.cookies
+        }).then(
+          (res) => {
+            this.disabled = false
+            window.alert('上传成功')
+          }
+        )
+      },
+      getEmails() {
+        window.axios.get('/getEmails').then(
+          (res) => {
+            this.emails = res.data.emails
+          }
+        )
+      },
+      postEmails() {
+        this.disabled = true
+        for (let i = 0; i < this.emails.length; i ++) {
+          if (!this.emails[i].email) {
+            window.alert('不允许留空')
+            this.disabled = false
+            return
+          }
+        }
+        window.axios.post('/setEmails', {
+          emails: this.emails
+        }).then(
+          (res) => {
+            this.disabled = false
+            window.alert('上传成功')
+          }
+        )
+      }
+    }
+  })
+</script>
+</html>

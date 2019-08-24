@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>PinyinMatch</title>
+</head>
+<script src="./x.js"></script>
+<script src="./main.js"></script>
+<script src="./vue.js"></script>
+<body style="background: rgb(178, 200, 187)">
+  <div id="app">
+    <h2 style="text-align: center;">PinyinMatch</h2>
+    <button @click="show = true">地区列表</button>
+    <button @click="show = false">长多音字串</button>
+    <h3>匹配时间:{{time}}（毫秒）</h3>
+    <div v-if="show">
+        <h3>列表长度:{{showList.length}}</h3>
+      <input type="text" v-model="kw1">
+      <div v-for="(i, index) in showList">
+        {{index}}#:
+        <span v-html="i"></span>
+      </div>
+    </div>
+    <div v-else>
+      <h3>字串长度:{{text.length}}</h3>
+      <input type="text" v-model="kw2">
+      <p v-html="showText"></p>
+    </div>
+  </div>
+</body>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      list: regions,
+      kw1: '',
+      kw2: '',
+      show: true,
+      time: 0,
+      text: '曾长还石弹曾长还曾经沧海难为水除却巫山不是云石弹曾长还床前明月光疑似地上霜石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹曾长还石弹先天下之忧而忧后天下之乐而乐'
+    },
+    methods: {
+      redFont(str, start ,end) {
+        return str.substring(0, start) + '<b style="color: red">' + str.substring(start, end + 1) + '</b>' + str.substring(end + 1)
+      }
+    },
+    computed: {
+      showList() {
+        if (this.kw1) {
+          var result = []
+          var start = (new Date()).getTime()
+          this.list.forEach(i => {
+            var m = PinyinMatch.match(i, this.kw1)
+            if (m) {
+              result.push(this.redFont(i, m[0], m[1]))
+            }
+          })
+          this.time = (new Date()).getTime() - start
+          return result
+        }
+        this.time = 0
+        return this.list
+      },
+      showText() {
+        if (this.kw2) {
+          var start = (new Date()).getTime()
+          var m = PinyinMatch.match(this.text, this.kw2)
+          this.time = (new Date()).getTime() - start
+          if (m) {
+            return this.redFont(this.text, m[0], m[1])
+          }
+        }
+        this.time = 0
+        return this.text
+      }
+    }
+  })
+</script>
+</html>
